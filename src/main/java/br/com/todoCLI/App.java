@@ -4,7 +4,6 @@ import br.com.todoCLI.core.Summary;
 
 import java.io.File;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,9 +20,17 @@ public class App
             throw new Exception("[App] - Fail to read the 'commands' package");
 
         // LoadAlias
-        for(String commandNames : commandFiles.list()){
-            getAliasOfACommand(commandNames.replace(".java", ""));
+        for(String commandName : commandFiles.list()){
+            String commandNameWithoutJava = commandName.replace(".java", "");
+            List<String> commandAlias = getAliasOfACommand(commandNameWithoutJava);
+            if(commandAlias.isEmpty()) {
+               return;
+            }
+
+            commands.put(commandAlias, commandNameWithoutJava);
         }
+
+        System.out.println(commands);
 
 
 //        Load and Invoke Run
@@ -37,14 +44,13 @@ public class App
     }
 
     private static List<String> getAliasOfACommand(String commandName) {
-        List<String> aliasOfEachCommand = new ArrayList<>();
         try{
             Class<?> loadClass = Class.forName(String.format("br.com.todoCLI.commands.%s", commandName));
 
             Object instance = loadClass.getDeclaredConstructor().newInstance();
 
-            Object summaryOfACommand = loadClass.getMethod("getSummary").invoke(instance);
-            System.out.println(summaryOfACommand);
+            Summary commandAlias = (Summary) loadClass.getMethod("getSummary").invoke(instance);
+            return commandAlias.alias();
         }catch (Exception e)
         {
             if(e instanceof ClassNotFoundException) {
@@ -52,10 +58,7 @@ public class App
             }
 
             System.out.println("[Load][Alias] - Error when trying to load/invoke class");
+            return null;
         }
-
-        System.out.println(commandName);
-
-        return aliasOfEachCommand;
     }
 }
