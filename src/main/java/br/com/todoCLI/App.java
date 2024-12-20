@@ -4,6 +4,7 @@ import java.io.File;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class App
@@ -15,12 +16,9 @@ public class App
         // Insere na lista acima
         File coomandsFile = Paths.get("src/main/java/br/com/todoCLI/commands").toFile();
         if(!coomandsFile.isDirectory())
-            throw new Exception("[Error] - Droga de url");
+            throw new Exception("[App] - Fail to read the command package");
 
-        for(String nameFile : coomandsFile.list())
-        {
-            commands.add(nameFile);
-        }
+        commands.addAll(Arrays.asList(coomandsFile.list()));
 
         System.out.println(commands);
 
